@@ -11,9 +11,62 @@
   <body>
     <h1>Sophia's Assignment 1: Blink!</h1>
     <div class="header">
-      <img src="IMG_0488.jpg" />
-      <img src="IMG_0489.jpg" />
-      <p>Here is all the documentation for assignment 1!</p>
+      <p>Resistence calculation:</p>
+      <p>R = (V_supply - V_forward) / I</p>
+      <p>red LED: (5-2.0)/0.02 = 3.0/0.02 = 150 Ohms</p>
+      <p>white LED: (5-3.0)/0.02 = 3.0/0.02 = 100 Ohms</p>
+      <p>blue LED: (5-3.0)/0.02 = 3.0/0.02 = 100 Ohms</p>
+
+      <p>My breadboard with my computer as the power source:</p>
+      <img src="powersource.jpg" />
+      
+      <p>My breadboard connected to Arduino:</p>
+      <img src="arduinopic.jpg" />
+
+    
+      <pre><code>&lt;h1&gt;It works!&lt;/h1&gt;
+      &lt;p&gt;// variables
+int pin1=13;
+int pin2=12;
+int pin3=11;
+
+
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(pin1, OUTPUT); // set pin 13 as output pin
+  pinMode(pin2, OUTPUT);
+  pinMode(pin3, OUTPUT);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  digitalWrite(pin1, HIGH);  // turns red led on
+  delay(100); // delay
+  digitalWrite(pin1, LOW); // turns red led off
+  delay(100); // delay 
+
+  digitalWrite(pin2, HIGH);  // turns white led on
+  delay(100); // delay
+  digitalWrite(pin2, LOW); // turns white led off
+  delay(100); // delay 
+
+  digitalWrite(pin3, HIGH);  // turns blue led on
+  delay(100); // delay
+  digitalWrite(pin3, LOW); // turns blue led off
+  delay(100); // delay 
+  
+}
+&lt;/p&gt;</code></pre>
+
+      <h2>Additional Questions</h2>
+      <p>1.</p>
+      <img src="voltage vs. led.png" />
+      <p>2. The amount of LEDs is limited to the board's power current supply and pin limit. Each LED draws up to ~20mA, so N LEDs would draw around N*20mA.</p>
+      <p>3. The human eye can perceive flicker up to a certain frequency, which is around 60 Hz. </p>
+      <p>4. Yes, I was really confused about the calculations, and I asked ChatGPT to explain how to work through them. My prompt was "explain how to calculate the appropriate resistance to use for an LED" and I referred to other online sources and calculated the rest myself.</p>
     </div>
   </body>
 </html>
