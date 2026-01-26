@@ -4,15 +4,140 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
 
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
+    <title>Sophia's HCDE 439 Physical Computing Page!</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-    <h1>Example Student's Assignment 2!</h1>
+    <h1>Sophia's Assignment 2: Fade!</h1>    
     <div class="header">
-      <img src="red-panda.jpg" />
+      <!-- <img src="red-panda.jpg" /> -->
       <p>Here is all the documentation for assignment 2!</p>
     </div>
+
+    <div class="board-and-schem">
+      <h2>My Arduino Board & Schematics</h2>
+      <img src="a2schem.jpeg" />
+      <p>My schematics & resistance calculations for 3 LEDs & a button</p>
+      <video width="320" height="240" autoplay>
+        <source src="a2vid.MOV" type="video/mov">
+        <!-- <source src="movie.ogg" type="video/ogg"> -->
+      Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="code">
+      <h2>Arduino Code</h2>
+      <pre><code>&lt;h1&gt;My Arduino Code!&lt;/h1&gt;
+            &lt;p&gt;
+      // references: https://arduinogetstarted.com/tutorials/arduino-led-fade
+  // https://roboticsbackend.com/arduino-push-button-multiple-leds/
+
+// constants won't change. They're used here to set pin numbers:
+const int buttonPin = 7;  // the number of the pushbutton pin
+const int rledPin = 13; // red led pin #
+const int wledPin = 12; // white led pin #
+const int bledPin = 11; // blue led pin #
+
+
+// variables will change:
+int buttonState = 0;  // variable for reading the pushbutton status
+int lastButtonState = buttonState; // stores the previous butttonstate
+int ledState = 0; // led starts off
+int brightness = 0; // brightness for analogwrite = 0
+int fadeAmount = 5; // brightness fades by this amnt
+
+const int ledNumber = 3; // constant to determine how many pins there are
+
+int LEDPinArray[ledNumber] = { rledPin, wledPin, bledPin }; // array with all led pins
+
+// function to initialize led pins to output
+void initLEDs() {
+  // for each led in the array
+  for (int i = 0; i < ledNumber; i++) {
+    // assign pin # to output
+    pinMode(LEDPinArray[i], OUTPUT);
+  }
+}
+
+// function to turn on LEDs
+void powerLEDs(bool powerOn) {
+  // for each led in array
+  for (int i = 0; i < ledNumber; i++) {
+    // if the power is on
+    if (powerOn) {
+      // change brightness
+      analogWrite(LEDPinArray[i], brightness);
+      // increase brightness by fade amount
+      brightness = brightness + fadeAmount;
+
+      // if brightness is neg or exceeds 255
+      if (brightness <= 0 || brightness >= 255) {
+        // turn fade amount to change from pos/neg
+        fadeAmount = -fadeAmount;
+      }
+
+      // delay
+      delay(30);
+
+    // if power isnt on
+    } else {
+      // turn led off
+      digitalWrite(LEDPinArray[i], LOW);
+    }
+  }
+}
+
+
+void setup() {
+  // initialize the LEDs pins by calling initialize function
+  initLEDs();
+
+  // initialize the pushbutton pin as an input:
+  pinMode(buttonPin, INPUT);
+
+  // set up serial
+  Serial.begin(9600);
+}
+
+void loop() {
+  // read the state of the pushbutton value:
+  buttonState = digitalRead(buttonPin);
+  // print buttonstate
+  Serial.println(buttonState);
+
+  // check if the pushbutton is pressed. If it is, the buttonState is HIGH:
+  if (buttonState == HIGH && lastButtonState == LOW) {
+    // check & see if this is running by printing "toggling led"
+    Serial.println("toggling led");
+    // check & see if this is running by printing the ledstate
+    Serial.println(ledState);
+
+    // change ledstate to opposite of what it's currently set to
+    ledState = !ledState;
+
+    // turn on/off leds
+    powerLEDs(ledState);
+   
+
+  }
+
+  // set lastbuttonstate to current button state
+  lastButtonState = buttonState;
+
+}      
+&lt;/p&gt;</code></pre>
+      <p>My Arduino Code</p>
+
+    </div>
+
+    <div class="add-qs">
+      <h2>Additional Questions</h2>
+      <img src="addq.jpeg" />
+      <p>My answers to the additional questions</p>
+      <p>During class and during this project, I learned about button bounce and how it can effect how the circuit functions (you can see in my video the lights flash very frequently even when I'm not pressing the button).</p>
+
+    </div>
+
   </body>
 </html>
