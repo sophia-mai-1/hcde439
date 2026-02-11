@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Sophia's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Sophia's Assignment 4: Libraries!</h1>    
+    <div class="header">
+      <!-- <img src="red-panda.jpg" /> -->
+      <p>Here is all the documentation for assignment 4!</p>
+    </div>
+
+    <div class="board-and-schem">
+      <img src="a3.gif" />
+      <h2>My Arduino Board & Schematics</h2>
+      <img src="a3schem.jpeg" />
+      <p>My schematics & resistance calculations for 2 LEDs & a photoresistor</p>
+      
+    </div>
+
+    <div class="code">
+      <h2>Arduino Code</h2>
+      <pre><code>&lt;h1&gt;My Arduino Code!&lt;/h1&gt;
+            &lt;p&gt;
+      // #define led1 
+const int led1 = 13;
+// #define led2
+const int led2 = 12;
+// #define LDR A0
+const int LDR = 11;
+
+// set up function
+void setup()
+{
+  // set up serial
+  Serial.begin(9600);
+  // set pin for photoresistor
+  pinMode(LDR, INPUT);
+  // set pin for led1
+  pinMode(led1, OUTPUT);
+  // set pin for led2
+  pinMode(led2, OUTPUT);
+}
+
+// loop function
+void loop() {
+  // create a value to turn on light based on voltage of the photoresistor
+  int value = analogRead(LDR);
+  // print voltage of ldr
+  Serial.println (value);
+  // delay
+  delay(1000);
+  
+  // limits range of sensor values between 200 and 310 (it was not exceeding ~270 for some reason even when i used rlly bright light)
+  int sensVal = constrain(value, 200, 310);
+  int light = map(value, 200, 310, 0, 10); // maps values from 200-310 to 0-10
+  if (light < 5) { // if light source is dim
+    // Serial.println("mapped value1"); // for clarification
+    Serial.println(light); // print mapped value
+    digitalWrite(led1, HIGH); // turn on white led (led1)
+    digitalWrite(led2, LOW); // turn off red led (led2)
+    delay(1000); // for readability
+  }
+
+  else { // otherwise
+    // Serial.println("mapped value2"); // for clarification
+    Serial.println(light); // print mapped value
+    digitalWrite(led1, LOW); // turn off red led (led2)
+    digitalWrite(led2, HIGH); // turn on white led (led1)
+    delay(1000); // for readability
+  }
+}
+&lt;/p&gt;</code></pre>
+      <p>My Arduino Code</p>
+
+    </div>
+
+    <div class="add-qs">
+      <h2>Additional Questions</h2>
+      <img src="a3qs.jpeg" />
+      <p>My answers to the additional questions</p>
+
+    </div>
+
+
+  <div class="home">
+        <a href="index.html">
+          <h2>Return to home</h2>
+        </a>
+      </div>
+    </div>
+
+  </body>
+</html>
