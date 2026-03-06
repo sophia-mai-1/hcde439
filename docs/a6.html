@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Sophia's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Sophia's Assignment 6: Talking With the Web!</h1>    
+    <div class="header">
+      <!-- <img src="red-panda.jpg" /> -->
+      <p>Here is all the documentation for assignment 6!</p>
+    </div>
+
+    <div class="board-and-schem">
+      <img src="a6.gif" />
+      <h2>My Arduino Board & Schematics</h2>
+      <img src="a6_sch.jpg" />
+      <p>My schematics for motion sensor, button, and 2 LEDs!</p>
+      
+    </div>
+
+    <div class="code">
+      <h2>Arduino Code</h2>
+// Define connection pins:
+const int pir = 9; // Connect the PIR motion sensor to pin 9
+const int button = 13; // Connect the button to pin 13
+const int wled = 10; // Connect the white LED to pin 10
+const int bled = 11; // Connect the blue LED to pin 11
+
+// Create variables:
+int pval = 0; // Variable to store the value read from the PIR motion sensor
+int bval = 0; // Variable to store the value read from the button
+bool motionState = false; // We start with no motion detected
+bool buttonState = false; // We start with the button not pressed
+
+void setup() {
+  // Configure the pins as input or output:
+  pinMode(wled, OUTPUT); // Set the white LED pin as an output
+  pinMode(bled, OUTPUT); // Set the blue LED pin as an output
+  pinMode(pir, INPUT); // Set the PIR motion sensor pin as an input
+  pinMode(button, INPUT); // Set the button pin as an input
+
+  Serial.begin(9600); // Start the serial communication at 9600 baud rate
+}
+
+void loop() {
+  pval = digitalRead(pir); // read pir value
+  bval = digitalRead(button); // read button value
+  Serial.print(pval); // print pir value
+  Serial.print(","); // print comma to separate values
+  Serial.print(bval); // print button value
+  Serial.println(); // print newline to end the line
+  delay(100); // delay to avoid overwhelming the serial monitor with data
+
+  if (pval == HIGH && bval == HIGH) { // if motion is detected and button is pressed
+    digitalWrite(wled, HIGH); // Turn on the white LED (corresponsponding to motion).
+    digitalWrite(bled, HIGH); // Turn on the blue LED (corresponsponding to button).
+
+
+    // Change the motion state to true (motion detected):
+    if (motionState == false) {
+      // Serial.println("Motion detected!"); // print "Motion detected!" to the serial monitor when motion is detected
+      // Serial.println(val); // print the value of the motion sensor to the serial monitor when motion is detected
+      motionState = true; // update motion state to true when motion is detected
+    }
+
+    if (buttonState == false) { // if button is pressed, change the button state to true
+      buttonState = true; // update button state to true when button is pressed
+    }
+  }
+
+  // If no motion is detected (pirPin = LOW), do the following:
+  else if (pval == HIGH && bval == LOW){ 
+    analogWrite(wled, 50); // Turn on white led to low brightness (corresponsponding to motion). 
+    digitalWrite(bled, LOW); // Turn off blue led (corresponsponding to button).
+
+    // Change the motion state to false (no motion):
+    if (buttonState == true) { // if button is pressed, change the button state to false
+      // Serial.println("Motion ended!");  // print "Motion ended!" to the serial monitor when motion ends
+      buttonState = false; // update button state to false when button is not pressed
+    }
+  }
+
+    else if (pval == LOW && bval == HIGH){ // if no motion is detected but button is pressed
+      analogWrite(bled, 50); // Turn on blue led to low brightness (corresponsponding to button). 
+      digitalWrite(wled, LOW); // Turn off white led (corresponsponding to motion).
+
+
+    //  Change the motion state to false (no motion):
+    if (buttonState == true) { 
+      // Serial.println("Motion ended!"); // print "Motion ended!" to the serial monitor when motion ends
+      buttonState = false; // update button state to false when button is not pressed
+    }
+  }
+
+  else { // if no motion is detected and button is not pressed
+    digitalWrite(wled, LOW); // Turn off white led (corresponsponding to motion).
+    digitalWrite(bled, LOW); // Turn off blue led (corresponsponding to button).
+
+  }
+}&lt;/p&gt;</code></pre>
+      <p>My Arduino Code</p>
+
+    </div>
+
+    <div class="code">
+      <h2>P5.js Code</h2>
+      const BAUD_RATE = 9600; // This should match the baud rate in your Arduino sketch
+
+let port, connectBtn, serial, inData; // Declare global variables
+let shapeFraction = 0;
+let buttonColor = 0;
+let motionColor = 0;
+let buttonFade = 50;
+let motionFade = 25;
+
+
+function setup() {
+  setupSerial(); // Run our serial setup function (below)
+
+  // Create a canvas that is the size of our browser window.
+  // windowWidth and windowHeight are p5 variables
+  createCanvas(windowWidth, windowHeight);
+  
+
+}
+
+
+function draw() {
+  const portIsOpen = checkPort(); // Check whether the port is open (see checkPort function below)
+  if (!portIsOpen) return; // If the port is not open, exit the draw loop
+
+  let str = port.readUntil("\n"); // Read from the port until the newline
+  if (str.length == 0) return; // If we didn't read anything, return.
+
+  let arr = str.trim().split(","); // Trim whitespace and split on commas
+
+  // Convert each element to a number and map it to the desired range
+  console.log(arr); // Log the raw array for debugging
+  let x = arr[0]; // first value is for the button
+  let y = arr[1]; // second value is for the motion sensor
+
+  console.log("button " + buttonColor); // Log the button color for debugging
+  console.log("motion " + motionColor); // Log the motion color for debugging
+
+  let circleColor = color(buttonColor, motionColor, 255); // Circle color based on button and motion sensor values
+
+
+  background("black"); // Set the background to black
+  noStroke(); // turn off outline
+  fill(circleColor); // white circle
+
+
+  let xCenter = width / 2; // Get x,y center of drawing Canvas
+  let yCenter = height / 2; // Get x,y center of drawing Canvas
+  
+  const maxDi = min(width, height); // Get the maximum diameter for the circle (so it fits on the screen)
+  let shapeFraction = mouseX / width; // Map the mouseX position to a fraction of the maximum diameter
+  // console.log("sf " + shapeFraction); // Log the shape fraction for debugging
+  let circleDiameter = maxDi * shapeFraction; // Calculate the circle diameter based on the shape fraction
+  circle(xCenter, yCenter, circleDiameter); // Draw the circle at the center of the screen with the calculated diameter
+
+  if (x == 1) { // If the button is pressed
+    if (buttonColor <= 0 || buttonColor >= 255) { // If the button color is at the minimum or maximum, reverse the fade direction
+      buttonFade = -buttonFade; // reverse fade direction when hitting bounds
+    }
+    buttonColor = constrain(buttonColor + buttonFade, 0, 255); // updates when button is pressed
+  }
+
+  if (y == 1) { // If motion is detected
+    if (motionColor <= 0 || motionColor >= 255) { // If the motion color is at the minimum or maximum, reverse the fade direction
+      motionFade = -motionFade; // reverse fade direction when hitting bounds
+    }
+    motionColor = constrain(motionColor + motionFade, 0, 255); // updates when motion detected
+  }
+}
+  
+
+ // Three helper functions for managing the serial connection.
+function setupSerial() {
+  port = createSerial(); // Create a new instance of the serialport library
+
+  // Check to see if there are any ports we have used previously
+  let usedPorts = usedSerialPorts();
+  if (usedPorts.length > 0) { // If we have used ports, let's open the first one!
+    // If there are ports we've used, open the first one
+    port.open(usedPorts[0], BAUD_RATE);
+  }
+
+  connectBtn = createButton("Connect to Arduino"); // Create a button to connect to the Arduino
+  connectBtn.position(5, 5); // Position the button in the top left of the screen.
+  connectBtn.mouseClicked(onConnectButtonClicked); // When the button is clicked, run the onConnectButtonClicked function
+}
+
+function checkPort() { // Check whether the port is open
+  if (!port.opened()) { // if the port is not open, we can't read from it
+    // If the port is not open, change button text
+    connectBtn.html("Connect to Arduino");
+    // Set background to black
+    background("black");
+    return false; // Return false if the port is not open
+  } else {
+    // Otherwise we are connected
+    connectBtn.html("Disconnect");
+
+    return true; // return true if the port is open
+  }
+}
+
+function onConnectButtonClicked() { // This function runs when the connect button is clicked
+  // When the connect button is clicked
+  if (!port.opened()) {
+    // If the port is not opened, we open it
+    port.open(BAUD_RATE);
+  } else {
+    // Otherwise, we close it!
+    port.close();
+  }
+}
+
+
+
+  <div class="home">
+        <a href="index.html">
+          <h2>Return to home</h2>
+        </a>
+      </div>
+    </div>
+
+  </body>
+</html>
