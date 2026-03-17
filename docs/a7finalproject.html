@@ -23,7 +23,8 @@
 
       <img src="a7.gif" />
       <h2>My Arduino Board & Schematics</h2>
-      <img src="a7_sch.jpg" />
+      <img src="a7_sch.jpeg" />
+      <img src="a7_circuit.jpg" />
 
       <p><br>I included an LED to indicate when I should water my plant for fun, but the main component of my project is the web interface.</p>
       <p><br>For the sensor, I used 2 nails and used cardboard to set them an inch apart, which is the optimal distance for soil moisture readings.</p>
@@ -33,194 +34,309 @@
     </div>
 
     <div class="code">
-      <h2>Arduino Code</h2>
-// Define connection pins:
-const int pir = 9; // Connect the PIR motion sensor to pin 9
-const int button = 13; // Connect the button to pin 13
-const int wled = 10; // Connect the white LED to pin 10
-const int bled = 11; // Connect the blue LED to pin 11
+      <h2><a href="https://github.com/sophia-mai-1/hcde439/tree/main/a7_finalproject">Arduino Code</h2></a>
+/****************** code made by PARTH SANTOSH KUNNIR************/
+// code source: https://www.instructables.com/DIY-SOIL-MOISTURE-SENSOR-CHEAP-YET-ACCURATE-/
 
-// Create variables:
-int pval = 0; // Variable to store the value read from the PIR motion sensor
-int bval = 0; // Variable to store the value read from the button
-bool motionState = false; // We start with no motion detected
-bool buttonState = false; // We start with the button not pressed
+int moistPin = A0; // moisture sensor is connected to analog pin A0
+int moistVal = 0; // set up variable to store moisture value from sensor
+int led = 9; // LED pin
 
-void setup() {
-  // Configure the pins as input or output:
-  pinMode(wled, OUTPUT); // Set the white LED pin as an output
-  pinMode(bled, OUTPUT); // Set the blue LED pin as an output
-  pinMode(pir, INPUT); // Set the PIR motion sensor pin as an input
-  pinMode(button, INPUT); // Set the button pin as an input
-
-  Serial.begin(9600); // Start the serial communication at 9600 baud rate
+void setup()
+{
+  Serial.begin(9600); // start serial communication at 9600 baud rate
 }
+void loop()
+{
+  moistVal = analogRead(moistPin);
+  // Serial.println(moistVal); // raw value from sensor
+  // not sure where they got this formula from but it seems to work pretty well for my soil moisture sensor, the probes are about 1 - 1.5 inches apart and the sensor is calibrated for that distance
+  int percent = 2.718282 * 2.718282 * (.008985 * moistVal + 0.207762); //calculate percent for probes about 1 - 1.5 inches apart
+  Serial.println(percent); // percent moisture value is printed to the serial monitor, you can use this value to set up a threshold for watering your plants, I have mine set to 50% so when the soil moisture is below 50% my led will turn on and when it is above 50% the led will turn off
+  // Serial.println("% Moisture "); // 
+  if(percent<50)
+ {digitalWrite(led,HIGH);} // if the sensor value is below 50% led will glow to indicate that the soil is dry and needs watering
+  
+  else
+  {digitalWrite(led,LOW);} // if sensor value is above 50% led on your nano will turn off
 
-void loop() {
-  pval = digitalRead(pir); // read pir value
-  bval = digitalRead(button); // read button value
-  Serial.print(pval); // print pir value
-  Serial.print(","); // print comma to separate values
-  Serial.print(bval); // print button value
-  Serial.println(); // print newline to end the line
-  delay(100); // delay to avoid overwhelming the serial monitor with data
-
-  if (pval == HIGH && bval == HIGH) { // if motion is detected and button is pressed
-    digitalWrite(wled, HIGH); // Turn on the white LED (corresponsponding to motion).
-    digitalWrite(bled, HIGH); // Turn on the blue LED (corresponsponding to button).
-
-
-    // Change the motion state to true (motion detected):
-    if (motionState == false) {
-      // Serial.println("Motion detected!"); // print "Motion detected!" to the serial monitor when motion is detected
-      // Serial.println(val); // print the value of the motion sensor to the serial monitor when motion is detected
-      motionState = true; // update motion state to true when motion is detected
-    }
-
-    if (buttonState == false) { // if button is pressed, change the button state to true
-      buttonState = true; // update button state to true when button is pressed
-    }
-  }
-
-  // If no motion is detected (pirPin = LOW), do the following:
-  else if (pval == HIGH && bval == LOW){ 
-    analogWrite(wled, 50); // Turn on white led to low brightness (corresponsponding to motion). 
-    digitalWrite(bled, LOW); // Turn off blue led (corresponsponding to button).
-
-    // Change the motion state to false (no motion):
-    if (buttonState == true) { // if button is pressed, change the button state to false
-      // Serial.println("Motion ended!");  // print "Motion ended!" to the serial monitor when motion ends
-      buttonState = false; // update button state to false when button is not pressed
-    }
-  }
-
-    else if (pval == LOW && bval == HIGH){ // if no motion is detected but button is pressed
-      analogWrite(bled, 50); // Turn on blue led to low brightness (corresponsponding to button). 
-      digitalWrite(wled, LOW); // Turn off white led (corresponsponding to motion).
-
-
-    //  Change the motion state to false (no motion):
-    if (buttonState == true) { 
-      // Serial.println("Motion ended!"); // print "Motion ended!" to the serial monitor when motion ends
-      buttonState = false; // update button state to false when button is not pressed
-    }
-  }
-
-  else { // if no motion is detected and button is not pressed
-    digitalWrite(wled, LOW); // Turn off white led (corresponsponding to motion).
-    digitalWrite(bled, LOW); // Turn off blue led (corresponsponding to button).
-
-  }
+  delay(250); // for stability 
+}
 }&lt;/p&gt;</code></pre>
-      <p>My Arduino Code</p>
-
     </div>
 
     <div class="code">
-      <h2>P5.js Code</h2>
-      const BAUD_RATE = 9600; // This should match the baud rate in your Arduino sketch
+          
+    <h2><a href="https://github.com/sophia-mai-1/hcde439/tree/main/a7_finalproject">Web Interface Code</h2></a>
+      // p5.js sound reference: https://editor.p5js.org/p5/sketches/Sound:_Load_and_Play_Sound
+// p5.js l-systems plant generation: https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbDcxY1I5WGNNRkp4WU40X1FQUFo5NUtxNDFHZ3xBQ3Jtc0tsZ052amtCNllvU1dmRF9xMFNSenJvb1dPLUVLTkVmWk5PODgyMlpTUVpEbGV4RXhUWktHZl95NzQtbnV1TDBVZlZFd01NWXhtTDk0S2laOE5UVkhucHQxbVo2Rzd0dl82ZVhKMzFfWWRVTFlHMkNSVQ&q=https%3A%2F%2Feditor.p5js.org%2FBarneyCodes%2Fsketches%2F4y0dLXw6Z&v=TOPxa1xIG5Q
+
+const BAUD_RATE = 9600;
 
 let port, connectBtn, serial, inData; // Declare global variables
-let shapeFraction = 0;
-let buttonColor = 0;
-let motionColor = 0;
-let buttonFade = 50;
-let motionFade = 25;
+
+// establish rules for the L-system
+const rules = {
+  // rules for x, which contains the list of options for how the branches can grow. Each option has a probability of being chosen, which allows for more natural variation in the growth patterns.
+  X: [
+    // Original rule
+    { rule: "(F[+X][-X]FX)",  prob: 0.5  },
+    
+    // Fewer limbs
+    { rule: "(F[-X]FX)",      prob: 0.05 },
+    { rule: "(F[+X]FX)",      prob: 0.05 },
+    
+    // Extra rotation
+    { rule: "(F[++X][-X]FX)", prob: 0.1  },
+    { rule: "(F[+X][--X]FX)", prob: 0.1  },
+    
+    // Berries/fruits
+    { rule: "(F[+X][-X]FXA)",  prob: 0.1  },
+    { rule: "(F[+X][-X]FXB)",  prob: 0.1  }
+  ],
+  F: [
+    // Original rule
+    { rule: "F(F)",  prob: 0.85 },
+    
+    // Extra growth
+    { rule: "F(FF)", prob: 0.05 },
+    
+    // Stunted growth
+    { rule: "F",   prob: 0.1 },
+  ],
+  "(": "",
+  ")": ""
+};
+
+const len = 4;
+const ang = 25;
+
+let drawRules;
+
+let word = "X";
+
+const maxGeneration = 7;
+let currGeneration = 2;
+
+let growthPercent = 1;
+const growthSpeed = 0.1;
+
+let moistureLevel = 0;
+let flashState = false;
+let lastFlashTime = 0;
+const FLASH_INTERVAL = 500; // ms between flashes
 
 
 function setup() {
+  createCanvas(windowWidth, windowHeight);
+  alarm = loadSound('assets/alarm.mp3');
+
+  strokeWeight(2);
+
   setupSerial(); // Run our serial setup function (below)
 
-  // Create a canvas that is the size of our browser window.
-  // windowWidth and windowHeight are p5 variables
-  createCanvas(windowWidth, windowHeight);
-  
-
+    // how we'll draw each element of the L-system. The parameter t is a value between 0 and 1 that indicates how far along we are in drawing that element, which allows us to animate the growth of the tree.
+  drawRules = {
+    // added t parameter to allow for animation of growth (lerping)
+    "A": (t) => {
+      // draw circle at current location for berries/fruits
+      noStroke();
+      fill("#E5CEDC");
+      circle(0, 0, len*2 * t);
+    },  
+    "B": (t) => {
+      // Draw circle at current location
+      noStroke();
+      fill("#FCA17D");
+      circle(0, 0, len*2 * t);
+    },
+    "F": (t) => {
+      // draw line forward, then move to end of line for stalk
+      stroke("#9ea93f");
+      line(0, 0, 0, -len * t);
+      // translating to the end of the line so that the next element will be drawn at the end of the current stalk, will create dashed effect if not included
+      translate(0, -len * t);
+    },
+    "+": (t) => {
+      // Rotate right
+      rotate(PI/180 * -ang * t);
+    },
+    "-": (t) => {
+      // Rotate right
+      rotate(PI/180 * ang * t);
+    },
+    // Save current location
+    "[": push,
+    // Restore last location
+    "]": pop,
+  };
 }
 
 
 function draw() {
-  const portIsOpen = checkPort(); // Check whether the port is open (see checkPort function below)
-  if (!portIsOpen) return; // If the port is not open, exit the draw loop
+  readMoisture();
+  console.log("Moisture Level:", moistureLevel);
 
-  let str = port.readUntil("\n"); // Read from the port until the newline
-  if (str.length == 0) return; // If we didn't read anything, return.
+  if (moistureLevel < 50) {
+    // Reset plant
+    word = "X";
+    currGeneration = 0;
+    growthPercent = 1;
 
-  let arr = str.trim().split(","); // Trim whitespace and split on commas
-
-  // Convert each element to a number and map it to the desired range
-  console.log(arr); // Log the raw array for debugging
-  let x = arr[0]; // first value is for the button
-  let y = arr[1]; // second value is for the motion sensor
-
-  console.log("button " + buttonColor); // Log the button color for debugging
-  console.log("motion " + motionColor); // Log the motion color for debugging
-
-  let circleColor = color(buttonColor, motionColor, 255); // Circle color based on button and motion sensor values
-
-
-  background("black"); // Set the background to black
-  noStroke(); // turn off outline
-  fill(circleColor); // white circle
-
-
-  let xCenter = width / 2; // Get x,y center of drawing Canvas
-  let yCenter = height / 2; // Get x,y center of drawing Canvas
-  
-  const maxDi = min(width, height); // Get the maximum diameter for the circle (so it fits on the screen)
-  let shapeFraction = mouseX / width; // Map the mouseX position to a fraction of the maximum diameter
-  // console.log("sf " + shapeFraction); // Log the shape fraction for debugging
-  let circleDiameter = maxDi * shapeFraction; // Calculate the circle diameter based on the shape fraction
-  circle(xCenter, yCenter, circleDiameter); // Draw the circle at the center of the screen with the calculated diameter
-
-  if (x == 1) { // If the button is pressed
-    if (buttonColor <= 0 || buttonColor >= 255) { // If the button color is at the minimum or maximum, reverse the fade direction
-      buttonFade = -buttonFade; // reverse fade direction when hitting bounds
+    if (millis() - lastFlashTime > FLASH_INTERVAL) {
+      flashState = !flashState;
+      lastFlashTime = millis();
+      alarm.play();
     }
-    buttonColor = constrain(buttonColor + buttonFade, 0, 255); // updates when button is pressed
+    background(flashState ? color(0, 200, 80) : color(28));
+    return;
   }
 
-  if (y == 1) { // If motion is detected
-    if (motionColor <= 0 || motionColor >= 255) { // If the motion color is at the minimum or maximum, reverse the fade direction
-      motionFade = -motionFade; // reverse fade direction when hitting bounds
-    }
-    motionColor = constrain(motionColor + motionFade, 0, 255); // updates when motion detected
+  alarm.stop();
+  flashState = false; // reset flash state when moisture is sufficient
+  background(28);
+
+  if(growthPercent < 1) {
+    const mod = (currGeneration + growthPercent);
+    growthPercent += growthSpeed/mod;
+  } else {
+    nextGeneration();
+  }
+  drawLsysLerp(width/2, height, word, growthPercent);
+}
+
+function readMoisture() {
+  const portIsOpen = checkPort();
+  if (!portIsOpen) return;
+
+  let mp = port.readUntil("\n");
+  if (mp.length == 0) return;
+
+  console.log(mp);
+
+  let val = parseFloat(mp);
+  if (!isNaN(val)) {
+    moistureLevel = val; // Update global moisture level (expects 0–100 range)
   }
 }
-  
 
- // Three helper functions for managing the serial connection.
+// check if maxGeneration has been reached, if not, generate next generation and reset growthPercent
+function nextGeneration() {
+  if(growthPercent < 1) {
+    return;
+  }
+  
+  if(currGeneration >= maxGeneration) {
+    return;
+  }
+  
+  word = generate(word);
+
+  currGeneration ++;
+  growthPercent = 0;
+}
+
+// generate the next generation of the L-system based on the rules
+function generate(word) {
+  let next = ""
+  
+  for(let i = 0; i < word.length; i ++) {
+    let c = word[i];
+    if(c in rules) {
+      let rule = rules[c];
+      
+      // Check if we're using an array or not
+      if(Array.isArray(rule)) {
+        next += chooseOne(rule); // If we are, choose one of the options
+      } else {
+        next += rules[c]; // Otherwise use the rule directly
+      }
+    } else {
+      next += c;
+    }
+  }
+  
+  return next;
+}
+
+
+function chooseOne(ruleSet) {
+  let n = random(); // Random number between 0-1
+  let t = 0;
+  for(let i = 0; i < ruleSet.length; i++) {
+    t += ruleSet[i].prob; // Keep adding the probability of the options to total
+    if(t > n) { // If the total is more than the random value
+      return ruleSet[i].rule; // Choose that option
+    }
+  }
+  return "";
+}
+
+function drawLsysLerp(x, y, state, t) {
+  t = constrain(t, 0, 1);
+  
+  let lerpOn = false;
+  
+  push();
+  translate(x, y);
+  for(let i = 0; i < state.length; i ++) {
+    let c = state[i];
+    
+    if(c === "(") {
+      lerpOn = true;
+      continue;
+    }
+    
+    if(c === ")") {
+      lerpOn = false;
+      continue;
+    }
+    
+    let lerpT = t;
+    
+    if(!lerpOn) {
+      lerpT = 1;
+    }
+    
+    if(c in drawRules) {
+      drawRules[c](lerpT);
+    }  
+  }
+  pop();
+}
+
+
 function setupSerial() {
-  port = createSerial(); // Create a new instance of the serialport library
+  port = createSerial();
 
   // Check to see if there are any ports we have used previously
   let usedPorts = usedSerialPorts();
-  if (usedPorts.length > 0) { // If we have used ports, let's open the first one!
+  if (usedPorts.length > 0) {
     // If there are ports we've used, open the first one
     port.open(usedPorts[0], BAUD_RATE);
   }
 
-  connectBtn = createButton("Connect to Arduino"); // Create a button to connect to the Arduino
+  connectBtn = createButton("Connect to Arduino");
   connectBtn.position(5, 5); // Position the button in the top left of the screen.
   connectBtn.mouseClicked(onConnectButtonClicked); // When the button is clicked, run the onConnectButtonClicked function
 }
 
-function checkPort() { // Check whether the port is open
-  if (!port.opened()) { // if the port is not open, we can't read from it
+function checkPort() {
+  if (!port.opened()) {
     // If the port is not open, change button text
     connectBtn.html("Connect to Arduino");
-    // Set background to black
+    // Set background to gray
     background("black");
-    return false; // Return false if the port is not open
+    return false;
   } else {
     // Otherwise we are connected
     connectBtn.html("Disconnect");
 
-    return true; // return true if the port is open
+    return true;
   }
 }
 
-function onConnectButtonClicked() { // This function runs when the connect button is clicked
+function onConnectButtonClicked() {
   // When the connect button is clicked
   if (!port.opened()) {
     // If the port is not opened, we open it
@@ -230,8 +346,6 @@ function onConnectButtonClicked() { // This function runs when the connect butto
     port.close();
   }
 }
-
-
 
   <div class="home">
         <a href="index.html">
